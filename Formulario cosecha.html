@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Parte de cosecha</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--verde:#1a7a4a;--verde2:#22a063;--verdeClaro:#e8f7ef;--verdeBorde:#a8dfc0;--texto:#1a2e1a;--gris:#6b7b6b;--borde:#d4e8d4;--fondo:#f2f7f2;--blanco:#ffffff;--r:#c0392b;--rbg:#fdf0ee;--rbd:#e8a8a0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;color:var(--texto)}
+.header{background:var(--verde);padding:26px 20px 22px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06)}
+.header-icon{font-size:34px;margin-bottom:6px;display:block}
+.header h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.header p{font-size:13px;color:rgba(255,255,255,.65);margin-top:4px}
+.wrap{padding:20px 16px 50px;max-width:480px;margin:0 auto}
+.steps{display:flex;align-items:center;gap:0;margin-bottom:22px}
+.step{flex:1;text-align:center}
+.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin:0 auto 4px;transition:all .3s}
+.step-num.active{background:var(--verde);color:#fff;box-shadow:0 2px 8px rgba(26,122,74,.3)}
+.step-num.done{background:var(--verdeClaro);color:var(--verde);border:2px solid var(--verdeBorde)}
+.step-num.pending{background:var(--blanco);color:var(--gris);border:2px solid var(--borde)}
+.step-label{font-size:10px;font-weight:600;color:var(--gris);letter-spacing:.04em;text-transform:uppercase}
+.step-line{flex:1;height:2px;background:var(--borde);margin-top:-18px;transition:background .3s}
+.step-line.done{background:var(--verdeBorde)}
+.section{display:none}.section.active{display:block}
+.card{background:var(--blanco);border:2px solid var(--borde);border-radius:16px;padding:18px;margin-bottom:14px}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--verde);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--gris);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.field input,.field select{width:100%;background:var(--fondo);border:2px solid var(--borde);border-radius:12px;padding:13px 15px;font-size:16px;font-family:'DM Sans',sans-serif;color:var(--texto);outline:none;-webkit-appearance:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field select:focus{border-color:var(--verde2);box-shadow:0 0 0 3px rgba(34,160,99,.1);background:var(--blanco)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:var(--fondo);padding-right:38px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kg-wrap{position:relative}
+.kg-wrap input{padding-right:44px;font-weight:600;font-size:18px;letter-spacing:-.01em}
+.kg-unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--gris);pointer-events:none}
+.cam-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.cam-row{background:var(--fondo);border:2px solid var(--borde);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.num-badge{background:var(--verde);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
+.cam-info{flex:1}
+.cam-chofer{font-weight:600;font-size:14px}
+.cam-kg{font-family:'DM Mono',monospace;font-size:13px;color:var(--verde);font-weight:600}
+.cam-del{background:var(--rbg);color:var(--r);border:1.5px solid var(--rbd);border-radius:8px;padding:6px 11px;font-size:13px;cursor:pointer;font-weight:600;flex-shrink:0}
+.add-cam-form{background:var(--verdeClaro);border:2px dashed var(--verdeBorde);border-radius:12px;padding:14px;margin-bottom:14px}
+.add-cam-form .field input{background:var(--blanco)}
+.btn{width:100%;border:none;border-radius:14px;padding:16px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn-verde{background:var(--verde);color:#fff;box-shadow:0 4px 16px rgba(26,122,74,.25)}
+.btn-outline{background:var(--blanco);color:var(--verde);border:2px solid var(--verdeBorde)}
+.btn-ghost{background:transparent;color:var(--gris);border:2px solid var(--borde)}
+.btn-sm{padding:11px 16px;font-size:14px;border-radius:10px;width:auto}
+.total-row{background:var(--verdeClaro);border:2px solid var(--verdeBorde);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.total-label{font-size:12px;font-weight:600;color:var(--gris);text-transform:uppercase;letter-spacing:.06em}
+.total-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--verde)}
+.resumen-header{background:var(--verde);color:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.resumen-campo{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.resumen-fecha{font-size:12px;opacity:.8;margin-top:2px}
+.resumen-total{font-family:'DM Mono',monospace;font-size:18px;font-weight:600}
+.resumen-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--borde)}
+.resumen-row:last-child{border-bottom:none}
+.resumen-chofer{font-weight:600;font-size:14px;margin-left:10px}
+.resumen-kg{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--verde)}
+.success{display:none;text-align:center;padding:24px 0}
+.success.show{display:block}
+.success-icon{font-size:60px;margin-bottom:12px}
+.success h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--verde);margin-bottom:8px}
+.success p{font-size:14px;color:var(--gris);line-height:1.6}
+.mt{margin-top:12px}
+.gap{display:flex;gap:10px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-icon">🌻</span>
+  <h1>Parte de cosecha</h1>
+  <p>Cargá los camiones del día</p>
+</div>
+
+<div class="wrap">
+
+  <div class="steps">
+    <div class="step"><div class="step-num active" id="sn1">1</div><div class="step-label">Jornada</div></div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step"><div class="step-num pending" id="sn2">2</div><div class="step-label">Camiones</div></div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step"><div class="step-num pending" id="sn3">3</div><div class="step-label">Enviar</div></div>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="section active" id="sec1">
+    <div class="card">
+      <div class="card-title">📅 Datos de la jornada</div>
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="f-fecha">
+      </div>
+      <div class="field">
+        <label>Campo</label>
+        <select id="f-campo">
+          <option value="">— Seleccioná el campo —</option>
+          <option>BARBERÍA</option><option>BAYA CASAL</option><option>ERREGUERENA</option>
+          <option>FARAMINIAN</option><option>GIMENEZ</option><option>DON MARTÍN</option>
+          <option>EL OREJANO</option><option>HERMIDA</option><option>LA CASILLA</option>
+          <option>LA GUITARRA</option><option>LA SOÑADA N</option><option>LAS BLANCAS</option>
+          <option>LAS LONJAS</option><option>NOVELTY</option><option>ESCUELA 9</option>
+          <option>TOKI EDER</option><option>SANTA RITA</option><option>CUNSEN</option>
+          <option>GALASSI</option><option>LA LILI</option><option>TURCO ASAT</option>
+          <option>GRANATO</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Lote <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(opcional)</span></label>
+        <input type="text" id="f-lote" placeholder="Ej: 1, 2, 7B…" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Has realizadas hoy</label>
+        <div class="kg-wrap">
+          <input type="number" id="f-has" placeholder="0" inputmode="decimal" step="0.1">
+          <span class="kg-unit">ha</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-verde" onclick="irPaso2()">Continuar →</button>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="section" id="sec2">
+    <div class="card">
+      <div class="card-title">🚛 Camiones del día</div>
+      <div class="cam-list" id="cam-list"></div>
+      <div class="add-cam-form">
+        <div class="field-row">
+          <div class="field">
+            <label>Chofer</label>
+            <input type="text" id="c-chofer" placeholder="Apellido" autocomplete="off" autocapitalize="words">
+          </div>
+          <div class="field">
+            <label>Kg campo</label>
+            <div class="kg-wrap">
+              <input type="number" id="c-kg" placeholder="0" inputmode="numeric">
+              <span class="kg-unit">kg</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="agregarCamion()">+ Agregar camión</button>
+      </div>
+      <div class="total-row" id="total-row" style="display:none">
+        <span class="total-label">Total del día</span>
+        <span class="total-val" id="total-kg"></span>
+      </div>
+    </div>
+    <div class="gap">
+      <button class="btn btn-ghost" style="flex:1" onclick="irPaso1()">← Volver</button>
+      <button class="btn btn-verde" style="flex:2" onclick="irPaso3()">Ver resumen →</button>
+    </div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="section" id="sec3">
+    <div id="resumen-content"></div>
+    <div id="btn-enviar">
+      <button class="btn btn-verde mt" onclick="enviarWhatsApp()"><span>📲</span> Enviar por WhatsApp</button>
+      <button class="btn btn-ghost mt" onclick="irPaso2()">← Corregir</button>
+    </div>
+    <div class="success" id="success">
+      <div class="success-icon">✅</div>
+      <h2>¡Enviado!</h2>
+      <p>Los datos llegaron por WhatsApp.<br>Si cosecharon otro campo hoy, cargá otro parte.</p>
+      <button class="btn btn-outline mt" onclick="nuevo()">+ Nuevo parte del día</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let camiones = [];
+const hoy = new Date().toISOString().split('T')[0];
+document.getElementById('f-fecha').value = hoy;
+
+const fmtFecha = iso => { if(!iso)return'—'; const[y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; };
+const fmtKg = n => n ? Number(n).toLocaleString('es-AR')+' kg' : '—';
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('sec'+i).classList.toggle('active', i===n);
+    const sn = document.getElementById('sn'+i);
+    sn.className = 'step-num '+(i<n?'done':i===n?'active':'pending');
+    sn.textContent = i<n?'✓':i;
+    if(i<3) document.getElementById('sl'+i).classList.toggle('done', i<n);
+  });
+  window.scrollTo(0,0);
+}
+
+function irPaso1() { setStep(1); }
+
+function irPaso2() {
+  if(!document.getElementById('f-campo').value){alert('Seleccioná el campo');return;}
+  setStep(2); renderCamiones();
+}
+
+function agregarCamion() {
+  const chofer = document.getElementById('c-chofer').value.trim();
+  const kg = +document.getElementById('c-kg').value||0;
+  if(!chofer){alert('Ingresá el chofer');return;}
+  if(!kg){alert('Ingresá los kg');return;}
+  camiones.push({id:Date.now(), chofer, kg});
+  document.getElementById('c-chofer').value='';
+  document.getElementById('c-kg').value='';
+  document.getElementById('c-chofer').focus();
+  renderCamiones();
+}
+
+function eliminarCamion(id) {
+  camiones = camiones.filter(c=>c.id!==id);
+  renderCamiones();
+}
+
+function renderCamiones() {
+  const list = document.getElementById('cam-list');
+  const totalRow = document.getElementById('total-row');
+  if(!camiones.length){
+    list.innerHTML='<div style="text-align:center;padding:8px 0 4px;font-size:13px;color:var(--gris)">Agregá el primer camión del día</div>';
+    totalRow.style.display='none'; return;
+  }
+  list.innerHTML = camiones.map((c,i)=>`
+    <div class="cam-row">
+      <div class="num-badge">${i+1}</div>
+      <div class="cam-info">
+        <div class="cam-chofer">${c.chofer}</div>
+        <div class="cam-kg">${fmtKg(c.kg)}</div>
+      </div>
+      <button class="cam-del" onclick="eliminarCamion(${c.id})">✕</button>
+    </div>`).join('');
+  const tot = camiones.reduce((a,c)=>a+c.kg,0);
+  document.getElementById('total-kg').textContent = fmtKg(tot);
+  totalRow.style.display='flex';
+}
+
+function irPaso3() {
+  if(!camiones.length){alert('Agregá al menos un camión');return;}
+  const campo = document.getElementById('f-campo').value;
+  const lote  = document.getElementById('f-lote').value.trim();
+  const has   = document.getElementById('f-has').value.trim();
+  const fecha = document.getElementById('f-fecha').value;
+  const tot   = camiones.reduce((a,c)=>a+c.kg,0);
+  document.getElementById('resumen-content').innerHTML = `
+    <div class="resumen-header">
+      <div>
+        <div class="resumen-campo">${campo}${lote?' · Lote '+lote:''}</div>
+        <div class="resumen-fecha">📅 ${fmtFecha(fecha)}${has?' · '+has+' ha':''}</div>
+      </div>
+      <div class="resumen-total">${fmtKg(tot)}</div>
+    </div>
+    <div class="card" style="padding:12px 16px">
+      ${camiones.map((c,i)=>`
+        <div class="resumen-row">
+          <div style="display:flex;align-items:center">
+            <div class="num-badge">${i+1}</div>
+            <div class="resumen-chofer">${c.chofer}</div>
+          </div>
+          <div class="resumen-kg">${fmtKg(c.kg)}</div>
+        </div>`).join('')}
+    </div>`;
+  setStep(3);
+}
+
+function enviarWhatsApp() {
+  const campo = document.getElementById('f-campo').value;
+  const lote  = document.getElementById('f-lote').value.trim();
+  const has   = document.getElementById('f-has').value.trim();
+  const fecha = document.getElementById('f-fecha').value;
+  const tot   = camiones.reduce((a,c)=>a+c.kg,0);
+  const msg = [
+    'PARTE DE COSECHA',
+    '================================',
+    'FECHA: '+fmtFecha(fecha),
+    'CAMPO: '+campo+(lote?' / LOTE: '+lote:''),
+    has?'HAS: '+has+' ha':'',
+    camiones.length+' camion'+(camiones.length!==1?'es':''),
+    '--------------------------------',
+    ...camiones.map((c,i)=>(i+1)+'. '+c.chofer+' / '+c.kg+' kg'),
+    '================================',
+    'TOTAL: '+fmtKg(tot),
+  ].filter(Boolean).join('\n');
+  // ← REEMPLAZÁ con tu número: 549 + código de área sin 0 + número
+  const num = '5492262492076';
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
+  document.getElementById('btn-enviar').style.display='none';
+  document.getElementById('success').classList.add('show');
+}
+
+function nuevo() {
+  camiones=[];
+  document.getElementById('f-campo').value='';
+  document.getElementById('f-lote').value='';
+  document.getElementById('f-has').value='';
+  document.getElementById('f-fecha').value=hoy;
+  document.getElementById('btn-enviar').style.display='block';
+  document.getElementById('success').classList.remove('show');
+  setStep(1);
+}
+
+document.getElementById('c-chofer').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('c-kg').focus();});
+document.getElementById('c-kg').addEventListener('keydown',e=>{if(e.key==='Enter')agregarCamion();});
+
+renderCamiones();
+</script>
+</body>
+</html>
