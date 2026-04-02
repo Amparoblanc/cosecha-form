@@ -116,6 +116,13 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
         <label>Lote <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(opcional)</span></label>
         <input type="text" id="f-lote" placeholder="Ej: 1, 2, 7B…" autocomplete="off">
       </div>
+      <div class="field">
+        <label>Has realizadas hoy</label>
+        <div class="kg-wrap">
+          <input type="number" id="f-has" placeholder="0" inputmode="decimal" step="0.1">
+          <span class="kg-unit">ha</span>
+        </div>
+      </div>
     </div>
     <button class="btn btn-verde" onclick="irPaso2()">Continuar →</button>
   </div>
@@ -237,13 +244,14 @@ function irPaso3() {
   if(!camiones.length){alert('Agregá al menos un camión');return;}
   const campo = document.getElementById('f-campo').value;
   const lote  = document.getElementById('f-lote').value.trim();
+  const has   = document.getElementById('f-has').value.trim();
   const fecha = document.getElementById('f-fecha').value;
   const tot   = camiones.reduce((a,c)=>a+c.kg,0);
   document.getElementById('resumen-content').innerHTML = `
     <div class="resumen-header">
       <div>
         <div class="resumen-campo">${campo}${lote?' · Lote '+lote:''}</div>
-        <div class="resumen-fecha">📅 ${fmtFecha(fecha)}</div>
+        <div class="resumen-fecha">📅 ${fmtFecha(fecha)}${has?' · '+has+' ha':''}</div>
       </div>
       <div class="resumen-total">${fmtKg(tot)}</div>
     </div>
@@ -263,6 +271,7 @@ function irPaso3() {
 function enviarWhatsApp() {
   const campo = document.getElementById('f-campo').value;
   const lote  = document.getElementById('f-lote').value.trim();
+  const has   = document.getElementById('f-has').value.trim();
   const fecha = document.getElementById('f-fecha').value;
   const tot   = camiones.reduce((a,c)=>a+c.kg,0);
   const msg = [
@@ -270,12 +279,13 @@ function enviarWhatsApp() {
     '================================',
     'FECHA: '+fmtFecha(fecha),
     'CAMPO: '+campo+(lote?' / LOTE: '+lote:''),
+    has?'HAS: '+has+' ha':'',
     camiones.length+' camion'+(camiones.length!==1?'es':''),
     '--------------------------------',
     ...camiones.map((c,i)=>(i+1)+'. '+c.chofer+' / '+c.kg+' kg'),
     '================================',
     'TOTAL: '+fmtKg(tot),
-  ].join('\n');
+  ].filter(Boolean).join('\n');
   // ← REEMPLAZÁ con tu número: 549 + código de área sin 0 + número
   const num = '5492262492076';
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
@@ -287,6 +297,7 @@ function nuevo() {
   camiones=[];
   document.getElementById('f-campo').value='';
   document.getElementById('f-lote').value='';
+  document.getElementById('f-has').value='';
   document.getElementById('f-fecha').value=hoy;
   document.getElementById('btn-enviar').style.display='block';
   document.getElementById('success').classList.remove('show');
