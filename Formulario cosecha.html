@@ -149,10 +149,37 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
         <button class="btn btn-outline btn-sm" onclick="agregarCamion()">+ Agregar camión</button>
       </div>
       <div class="total-row" id="total-row" style="display:none">
-        <span class="total-label">Total del día</span>
+        <span class="total-label">Total camiones</span>
         <span class="total-val" id="total-kg"></span>
       </div>
     </div>
+
+    <!-- SILOBOLSAS -->
+    <div class="card">
+      <div class="card-title">🌾 Silobolsas del día <span style="font-size:11px;font-weight:400;color:#6b7b6b">(opcional)</span></div>
+      <div class="cam-list" id="silo-list"></div>
+      <div class="add-cam-form">
+        <div class="field-row">
+          <div class="field">
+            <label>N° Silobolsa</label>
+            <input type="text" id="s-num" placeholder="Ej: 1, SB-01" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Kg ingresados</label>
+            <div class="kg-wrap">
+              <input type="number" id="s-kg" placeholder="0" inputmode="numeric">
+              <span class="kg-unit">kg</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="color:var(--verde);border-color:var(--verdeBorde)" onclick="agregarSilo()">+ Agregar silobolsa</button>
+      </div>
+      <div class="total-row" id="silo-total-row" style="display:none;background:#e8f7ef;border-color:var(--verdeBorde)">
+        <span class="total-label">Total silobolsas</span>
+        <span class="total-val" id="total-silo-kg" style="color:var(--verde)"></span>
+      </div>
+    </div>
+
     <div class="gap">
       <button class="btn btn-ghost" style="flex:1" onclick="irPaso1()">← Volver</button>
       <button class="btn btn-verde" style="flex:2" onclick="irPaso3()">Ver resumen →</button>
@@ -178,6 +205,7 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
 
 <script>
 let camiones = [];
+let silos = [];
 const hoy = new Date().toISOString().split('T')[0];
 document.getElementById('f-fecha').value = hoy;
 
@@ -199,7 +227,7 @@ function irPaso1() { setStep(1); }
 
 function irPaso2() {
   if(!document.getElementById('f-campo').value){alert('Seleccioná el campo');return;}
-  setStep(2); renderCamiones();
+  setStep(2); renderCamiones(); renderSilos();
 }
 
 function agregarCamion() {
@@ -240,20 +268,59 @@ function renderCamiones() {
   totalRow.style.display='flex';
 }
 
+function agregarSilo() {
+  const num = document.getElementById('s-num').value.trim();
+  const kg  = +document.getElementById('s-kg').value||0;
+  if(!num){alert('Ingresá el número de silobolsa');return;}
+  if(!kg){alert('Ingresá los kg');return;}
+  silos.push({id:Date.now(), num, kg});
+  document.getElementById('s-num').value='';
+  document.getElementById('s-kg').value='';
+  document.getElementById('s-num').focus();
+  renderSilos();
+}
+
+function eliminarSilo(id){
+  silos=silos.filter(s=>s.id!==id);
+  renderSilos();
+}
+
+function renderSilos(){
+  const list=document.getElementById('silo-list');
+  const totalRow=document.getElementById('silo-total-row');
+  if(!silos.length){
+    list.innerHTML='<div style="text-align:center;padding:8px 0 4px;font-size:13px;color:var(--gris)">Sin silobolsas — opcional</div>';
+    totalRow.style.display='none'; return;
+  }
+  list.innerHTML=silos.map((s,i)=>`
+    <div class="cam-row" style="background:#e8f7ef;border-color:var(--verdeBorde)">
+      <div class="num-badge" style="background:#22a063">🌾</div>
+      <div class="cam-info">
+        <div class="cam-chofer">Silo ${s.num}</div>
+        <div class="cam-kg">${fmtKg(s.kg)}</div>
+      </div>
+      <button class="cam-del" onclick="eliminarSilo(${s.id})">✕</button>
+    </div>`).join('');
+  const tot=silos.reduce((a,s)=>a+s.kg,0);
+  document.getElementById('total-silo-kg').textContent=fmtKg(tot);
+  totalRow.style.display='flex';
+}
+
 function irPaso3() {
-  if(!camiones.length){alert('Agregá al menos un camión');return;}
+  if(!camiones.length&&!silos.length){alert('Agregá al menos un camión o silobolsa');return;}
   const campo = document.getElementById('f-campo').value;
   const lote  = document.getElementById('f-lote').value.trim();
   const has   = document.getElementById('f-has').value.trim();
   const fecha = document.getElementById('f-fecha').value;
   const tot   = camiones.reduce((a,c)=>a+c.kg,0);
+  const totSilo = silos.reduce((a,s)=>a+s.kg,0);
   document.getElementById('resumen-content').innerHTML = `
     <div class="resumen-header">
       <div>
         <div class="resumen-campo">${campo}${lote?' · Lote '+lote:''}</div>
         <div class="resumen-fecha">📅 ${fmtFecha(fecha)}${has?' · '+has+' ha':''}</div>
       </div>
-      <div class="resumen-total">${fmtKg(tot)}</div>
+      <div class="resumen-total">${fmtKg(tot+totSilo)}</div>
     </div>
     <div class="card" style="padding:12px 16px">
       ${camiones.map((c,i)=>`
@@ -263,6 +330,14 @@ function irPaso3() {
             <div class="resumen-chofer">${c.chofer}</div>
           </div>
           <div class="resumen-kg">${fmtKg(c.kg)}</div>
+        </div>`).join('')}
+      ${silos.map(s=>`
+        <div class="resumen-row" style="background:#f0faf4">
+          <div style="display:flex;align-items:center">
+            <div class="num-badge" style="background:#22a063">🌾</div>
+            <div class="resumen-chofer">Silo ${s.num}</div>
+          </div>
+          <div class="resumen-kg">${fmtKg(s.kg)}</div>
         </div>`).join('')}
     </div>`;
   setStep(3);
@@ -274,6 +349,7 @@ function enviarWhatsApp() {
   const has   = document.getElementById('f-has').value.trim();
   const fecha = document.getElementById('f-fecha').value;
   const tot   = camiones.reduce((a,c)=>a+c.kg,0);
+  const totSilo = silos.reduce((a,s)=>a+s.kg,0);
   const msg = [
     'PARTE DE COSECHA',
     '================================',
@@ -283,10 +359,12 @@ function enviarWhatsApp() {
     camiones.length+' camion'+(camiones.length!==1?'es':''),
     '--------------------------------',
     ...camiones.map((c,i)=>(i+1)+'. '+c.chofer+' / '+c.kg+' kg'),
+    silos.length?'--- SILOBOLSAS ---':'',
+    ...silos.map(s=>'SILO '+s.num+' / '+s.kg+' kg'),
     '================================',
-    'TOTAL: '+fmtKg(tot),
+    'TOTAL CAMIONES: '+fmtKg(tot),
+    totSilo?'TOTAL SILOS: '+fmtKg(totSilo):'',
   ].filter(Boolean).join('\n');
-  // ← REEMPLAZÁ con tu número: 549 + código de área sin 0 + número
   const num = '5492262492076';
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
   document.getElementById('btn-enviar').style.display='none';
@@ -295,6 +373,7 @@ function enviarWhatsApp() {
 
 function nuevo() {
   camiones=[];
+  silos=[];
   document.getElementById('f-campo').value='';
   document.getElementById('f-lote').value='';
   document.getElementById('f-has').value='';
@@ -306,8 +385,11 @@ function nuevo() {
 
 document.getElementById('c-chofer').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('c-kg').focus();});
 document.getElementById('c-kg').addEventListener('keydown',e=>{if(e.key==='Enter')agregarCamion();});
+document.getElementById('s-num').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('s-kg').focus();});
+document.getElementById('s-kg').addEventListener('keydown',e=>{if(e.key==='Enter')agregarSilo();});
 
 renderCamiones();
+renderSilos();
 </script>
 </body>
 </html>
