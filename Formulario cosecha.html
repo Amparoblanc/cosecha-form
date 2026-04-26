@@ -120,7 +120,7 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
       <div class="field">
         <label>Has realizadas hoy</label>
         <div class="kg-wrap">
-          <input type="text" id="f-has" placeholder="0" inputmode="decimal" autocomplete="off">
+          <input type="text" id="f-has" placeholder="0" inputmode="numeric" autocomplete="off">
           <span class="kg-unit">ha</span>
         </div>
       </div>
@@ -391,6 +391,11 @@ document.getElementById('s-kg').addEventListener('keydown',e=>{if(e.key==='Enter
 
 renderCamiones();
 renderSilos();
+
+// Convierte coma en punto para iOS en campo hectáreas
+document.getElementById('f-has').addEventListener('input', function(){
+  this.value = this.value.replace(',', '.');
+});
 </script>
 </body>
 </html>
