@@ -110,7 +110,7 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
           <option>TOKI EDER</option><option>SANTA RITA</option><option>CUNSEN</option>
           <option>GALASSI</option><option>LA LILI</option><option>TURCO ASAT</option>
           <option>GRANATO</option>
-          <option>CAMPO FLOR</option><option>STORTI</option>
+          <option>CAMPO FLOR</option><option>STORTI</option><option>TOME Y TRAIGA</option>
         </select>
       </div>
       <div class="field">
@@ -121,6 +121,7 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
         <label>Has realizadas hoy</label>
         <div class="kg-wrap">
           <input type="text" id="f-has" placeholder="0" inputmode="numeric" autocomplete="off">
+          <button type="button" onclick="insertarComa()" style="padding:0 12px;font-size:1.2rem;background:#e0e0e0;border:1px solid #ccc;border-radius:6px;cursor:pointer;height:44px;">,</button>
           <span class="kg-unit">ha</span>
         </div>
       </div>
@@ -396,6 +397,15 @@ renderSilos();
 document.getElementById('f-has').addEventListener('input', function(){
   this.value = this.value.replace(',', '.');
 });
+
+function insertarComa() {
+  var input = document.getElementById('f-has');
+  var val = input.value;
+  if (val.indexOf('.') === -1) {
+    input.value = val + '.';
+  }
+  input.focus();
+}
 </script>
 </body>
 </html>
