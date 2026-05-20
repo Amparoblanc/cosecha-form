@@ -102,37 +102,17 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
         <label>Campo</label>
         <select id="f-campo">
           <option value="">— Seleccioná el campo —</option>
-          <option>ASAT</option>
-          <option>BARBERÍA</option>
-          <option>BAYA CASAL</option>
-          <option>CAMPO FLOR</option>
-          <option>COOPERATIVA</option>
-          <option>CUNSEN</option>
-          <option>DON MARTÍN</option>
-          <option>EL OREJANO</option>
-          <option>EL PERDIDO</option>
-          <option>ERREGUERENA</option>
-          <option>ESCUELA 9</option>
-          <option>FARAMINIAN</option>
-          <option>GALASSI</option>
-          <option>GIMENEZ</option>
-                    <option>HERMIDA</option>
-          <option>LA CASILLA</option>
-          <option>LA FRANCISCA</option>
-          <option>LA GUITARRA</option>
-          <option>LA LILI</option>
-          <option>LA SOÑADA N</option>
-          <option>LA SOÑADA Q-B</option>
-          <option>LAS BLANCAS</option>
-          <option>LAS LONJAS</option>
-          <option>LIDIA</option>
-          <option>NOVELTY</option>
-          <option>SANTA RITA</option>
-          <option>SORDELLI</option>
-          <option>STORTI</option>
-          <option>TOKI EDER</option>
-          <option>TOME Y TRAIGA</option>
-          <option>TURCO ASAT</option>
+          <option>BARBERÍA</option><option>BARÓN</option>
+          <option>BAYA CASAL</option><option>ERREGUERENA</option>
+          <option>FARAMINIAN</option><option>GIMENEZ</option><option>DON MARTÍN</option>
+          <option>EL OREJANO</option><option>HERMIDA</option><option>LA CASILLA</option>
+          <option>LA GUITARRA</option><option>LA SOÑADA N</option><option>LAS BLANCAS</option>
+          <option>LAS LONJAS</option><option>NOVELTY</option><option>ESCUELA 9</option>
+          <option>TAMANGUEYU</option>
+          <option>TOKI EDER</option><option>SANTA RITA</option><option>CUNSEN</option>
+          <option>GALASSI</option><option>LA LILI</option><option>TURCO ASAT</option>
+          <option>GRANATO</option>
+          <option>CAMPO FLOR</option><option>STORTI</option>
         </select>
       </div>
       <div class="field">
@@ -141,12 +121,9 @@ body{background:var(--fondo);font-family:'DM Sans',sans-serif;min-height:100vh;c
       </div>
       <div class="field">
         <label>Has realizadas hoy</label>
-        <div class="kg-wrap" style="position:relative;">
-          <input type="text" id="f-has" placeholder="0" inputmode="numeric" autocomplete="off" style="padding-right:80px;">
-          <div style="position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;gap:4px;padding-right:8px;">
-            <button type="button" onclick="insertarComa()" style="padding:0 10px;font-size:1.1rem;background:#d4edda;border:1px solid #a8d5b5;border-radius:6px;cursor:pointer;height:32px;font-weight:bold;">,</button>
-            <span class="kg-unit" style="position:static;">ha</span>
-          </div>
+        <div class="kg-wrap">
+          <input type="number" id="f-has" placeholder="0" inputmode="decimal" step="0.1">
+          <span class="kg-unit">ha</span>
         </div>
       </div>
     </div>
@@ -416,20 +393,6 @@ document.getElementById('s-kg').addEventListener('keydown',e=>{if(e.key==='Enter
 
 renderCamiones();
 renderSilos();
-
-// Convierte coma en punto para iOS en campo hectáreas
-document.getElementById('f-has').addEventListener('input', function(){
-  this.value = this.value.replace(',', '.');
-});
-
-function insertarComa() {
-  var input = document.getElementById('f-has');
-  var val = input.value;
-  if (val.indexOf('.') === -1) {
-    input.value = val + '.';
-  }
-  input.focus();
-}
 </script>
 </body>
 </html>
